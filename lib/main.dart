@@ -17,41 +17,43 @@ Future<void> main() async {
 class DiarioApp extends StatelessWidget {
   const DiarioApp({super.key});
 
-  static const _trackOrange = Color(0xFFEA580C);
-  static const _trackOrangeBright = Color(0xFFFF6D3F);
-  static const _stadiumNavy = Color(0xFF0F172A);
-  static const _slateDark = Color(0xFF1E293B);
+  static const _azzurroItalia = Color(0xFF0052B4);
+  static const _azzurroChiaro = Color(0xFF60A5FA);
+  static const _bluNotte = Color(0xFF0A1628);
+  static const _bluScuro = Color(0xFF132238);
+  static const _oroMedaglia = Color(0xFFD4AF37);
+  static const _oroBrillante = Color(0xFFF5C518);
 
   @override
   Widget build(BuildContext context) {
     final lightScheme = const ColorScheme.light(
-      primary: _trackOrange,
+      primary: _azzurroItalia,
       onPrimary: Colors.white,
-      primaryContainer: Color(0xFFFFEDD5),
-      onPrimaryContainer: Color(0xFF7C2D12),
-      secondary: _stadiumNavy,
-      onSecondary: Colors.white,
-      secondaryContainer: Color(0xFFE2E8F0),
-      onSecondaryContainer: _stadiumNavy,
+      primaryContainer: Color(0xFFDBEAFE),
+      onPrimaryContainer: Color(0xFF002B66),
+      secondary: _oroMedaglia,
+      onSecondary: _bluNotte,
+      secondaryContainer: Color(0xFFFEF3C7),
+      onSecondaryContainer: Color(0xFF713F12),
       surface: Colors.white,
-      onSurface: _stadiumNavy,
-      surfaceContainerHighest: Color(0xFFF1F5F9),
-      outlineVariant: Color(0xFFE2E8F0),
+      onSurface: _bluNotte,
+      surfaceContainerHighest: Color(0xFFEFF4FA),
+      outlineVariant: Color(0xFFCBD5E1),
     );
 
     final darkScheme = const ColorScheme.dark(
-      primary: _trackOrangeBright,
-      onPrimary: Color(0xFF0F172A),
-      primaryContainer: Color(0xFF7C2D12),
-      onPrimaryContainer: Color(0xFFFFEDD5),
-      secondary: Color(0xFF38BDF8),
-      onSecondary: _stadiumNavy,
-      secondaryContainer: _slateDark,
-      onSecondaryContainer: Color(0xFFE2E8F0),
-      surface: _slateDark,
+      primary: _azzurroChiaro,
+      onPrimary: _bluNotte,
+      primaryContainer: Color(0xFF003B82),
+      onPrimaryContainer: Color(0xFFDBEAFE),
+      secondary: _oroBrillante,
+      onSecondary: _bluNotte,
+      secondaryContainer: Color(0xFF422006),
+      onSecondaryContainer: Color(0xFFFEF3C7),
+      surface: _bluScuro,
       onSurface: Color(0xFFF8FAFC),
-      surfaceContainerHighest: Color(0xFF334155),
-      outlineVariant: Color(0xFF334155),
+      surfaceContainerHighest: Color(0xFF1E3A5F),
+      outlineVariant: Color(0xFF2B466B),
     );
 
     return MaterialApp(
@@ -60,31 +62,31 @@ class DiarioApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: lightScheme,
-        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        scaffoldBackgroundColor: const Color(0xFFF4F7FB),
         appBarTheme: const AppBarTheme(
-          backgroundColor: _stadiumNavy,
+          backgroundColor: _azzurroItalia,
           foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: false,
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: _trackOrange,
-          foregroundColor: Colors.white,
+          backgroundColor: _oroMedaglia,
+          foregroundColor: _bluNotte,
         ),
         navigationBarTheme: NavigationBarThemeData(
           backgroundColor: Colors.white,
           surfaceTintColor: Colors.transparent,
-          indicatorColor: const Color(0xFFFFEDD5),
+          indicatorColor: const Color(0xFFDBEAFE),
           iconTheme: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
-              return const IconThemeData(color: _trackOrange);
+              return const IconThemeData(color: _azzurroItalia);
             }
             return const IconThemeData(color: Color(0xFF64748B));
           }),
           labelTextStyle: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
               return const TextStyle(
-                color: _trackOrange,
+                color: _azzurroItalia,
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
               );
@@ -99,31 +101,31 @@ class DiarioApp extends StatelessWidget {
       darkTheme: ThemeData(
         useMaterial3: true,
         colorScheme: darkScheme,
-        scaffoldBackgroundColor: const Color(0xFF0B1120),
+        scaffoldBackgroundColor: _bluNotte,
         appBarTheme: const AppBarTheme(
-          backgroundColor: _stadiumNavy,
+          backgroundColor: Color(0xFF003B82),
           foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: false,
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: _trackOrangeBright,
-          foregroundColor: _stadiumNavy,
+          backgroundColor: _oroBrillante,
+          foregroundColor: _bluNotte,
         ),
         navigationBarTheme: NavigationBarThemeData(
-          backgroundColor: _stadiumNavy,
+          backgroundColor: _bluScuro,
           surfaceTintColor: Colors.transparent,
-          indicatorColor: const Color(0xFF7C2D12),
+          indicatorColor: const Color(0xFF003B82),
           iconTheme: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
-              return const IconThemeData(color: _trackOrangeBright);
+              return const IconThemeData(color: _oroBrillante);
             }
             return const IconThemeData(color: Color(0xFF94A3B8));
           }),
           labelTextStyle: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
               return const TextStyle(
-                color: _trackOrangeBright,
+                color: _oroBrillante,
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
               );
