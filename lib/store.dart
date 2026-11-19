@@ -5,6 +5,7 @@ import 'package:archive/archive.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models.dart';
 
@@ -38,6 +39,20 @@ class Store extends ChangeNotifier {
   }
 
   Future<void> load() async {
+    if (kIsWeb) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString('diario_atletica_data');
+        if (raw != null && raw.isNotEmpty) {
+          _fromJson(jsonDecode(raw));
+        }
+      } catch (e) {
+        debugPrint('Errore lettura dati web: $e');
+      }
+      notifyListeners();
+      return;
+    }
+
     _dir = await getApplicationDocumentsDirectory();
     await Directory('${_dir.path}/images').create(recursive: true);
     _file = File('${_dir.path}/data.json');
@@ -78,7 +93,14 @@ class Store extends ChangeNotifier {
   }
 
   Future<void> save() async {
-    await _file.writeAsString(jsonEncode(_toJson()));
+    final encoded = jsonEncode(_toJson());
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('diario_atletica_data', encoded);
+      notifyListeners();
+      return;
+    }
+    await _file.writeAsString(encoded);
     notifyListeners();
   }
 
@@ -158,9 +180,10 @@ class Store extends ChangeNotifier {
   }
 
   // ---- Immagini
-  String imagePath(String name) => '${_dir.path}/images/$name';
+  String imagePath(String name) => kIsWeb ? name : '${_dir.path}/images/$name';
 
   Future<String> importImage(XFile x) async {
+    if (kIsWeb) return x.path;
     final ext = x.path.contains('.') ? x.path.split('.').last : 'jpg';
     final name = '${newId()}.$ext';
     await File(x.path).copy(imagePath(name));
@@ -169,6 +192,9 @@ class Store extends ChangeNotifier {
 
   // ---- Export / Import
   Future<File> exportZip() async {
+    if (kIsWeb) {
+      throw Exception('Esportazione ZIP non disponibile nella versione Web.');
+    }
     final a = Archive();
     final data = utf8.encode(jsonEncode(_toJson()));
     a.addFile(ArchiveFile('data.json', data.length, data));
@@ -191,6 +217,9 @@ class Store extends ChangeNotifier {
 
   /// replace = true: sostituisce tutto. false: unisce per id (l'importato vince).
   Future<void> importZip(String path, {required bool replace}) async {
+    if (kIsWeb) {
+      throw Exception('Importazione ZIP non disponibile nella versione Web.');
+    }
     final archive = ZipDecoder().decodeBytes(await File(path).readAsBytes());
     Map<String, dynamic>? json;
     for (final f in archive) {
