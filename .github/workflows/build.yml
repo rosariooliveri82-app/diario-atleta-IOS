@@ -38,6 +38,7 @@ jobs:
             cp icona.png web/icons/Icon-maskable-192.png
             cp icona.png web/icons/Icon-maskable-512.png
           fi
+      - run: flutter pub add shared_preferences
       - run: flutter pub get
       - name: Compila per Web
         run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
