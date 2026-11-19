@@ -1,71 +1,49 @@
-name: Build app
+name: Build Web App
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  android:
+  web:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
-      - name: Genera cartelle piattaforma
-        run: flutter create . --project-name diario_atletica --org it.atletica --platforms=android,ios
-      - name: Nome app Android
-        run: sed -i 's/android:label="[^"]*"/android:label="Diario Atletica"/' android/app/src/main/AndroidManifest.xml
-      - name: Aggiorna compileSdk app a 36
+      - name: Genera cartella web
+        run: flutter create . --project-name diario_atletica --org it.atletica --platforms=web
+      - name: Imposta nome e icona app
         run: |
-          if [ -f android/app/build.gradle.kts ]; then
-            sed -i 's/flutter\.compileSdkVersion/36/g' android/app/build.gradle.kts
-          elif [ -f android/app/build.gradle ]; then
-            sed -i 's/flutter\.compileSdkVersion/36/g' android/app/build.gradle
+          sed -i 's/<title>.*<\/title>/<title>Diario Atletica<\/title>/' web/index.html
+          sed -i 's/content="diario_atletica"/content="Diario Atletica"/g' web/index.html
+          sed -i 's/"name": "diario_atletica"/"name": "Diario Atletica"/g' web/manifest.json
+          sed -i 's/"short_name": "diario_atletica"/"short_name": "Diario Atletica"/g' web/manifest.json
+          if [ -f icona.png ]; then
+            cp icona.png web/favicon.png
+            cp icona.png web/icons/Icon-192.png
+            cp icona.png web/icons/Icon-512.png
+            cp icona.png web/icons/Icon-maskable-192.png
+            cp icona.png web/icons/Icon-maskable-512.png
           fi
       - run: flutter pub get
-      - name: Forza compileSdk 36 su file_picker
-        run: |
-          CACHE_DIR="${PUB_CACHE:-$HOME/.pub-cache}"
-          find "$CACHE_DIR" -path "*file_picker*/android/build.gradle" -exec sed -i -E 's/compileSdk(Version)?[[:space:]]*=?[[:space:]]*[0-9]+/compileSdk 36/g' {} +
-          find "$CACHE_DIR" -path "*file_picker*/android/build.gradle.kts" -exec sed -i -E 's/compileSdk[[:space:]]*=[[:space:]]*[0-9]+/compileSdk = 36/g' {} +
-      - run: flutter build apk --release
-      - uses: actions/upload-artifact@v4
+      - name: Compila per Web
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
         with:
-          name: diario-atletica-android-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-
-  ios:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-      - name: Genera cartelle piattaforma
-        run: flutter create . --project-name diario_atletica --org it.atletica --platforms=android,ios
-      - name: Permessi iOS (foto, fotocamera)
-        run: |
-          PL=ios/Runner/Info.plist
-          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string Serve per importare la foto della tessera" $PL
-          /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string Serve per fotografare la tessera" $PL
-          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Diario\ Atletica" $PL
-      - run: flutter pub get
-      - name: Build iOS (senza firma)
-        run: flutter build ios --release --no-codesign
-      - name: Crea IPA non firmato
-        run: |
-          mkdir Payload
-          cp -r build/ios/iphoneos/Runner.app Payload/
-          zip -r diario-atletica-unsigned.ipa Payload
-      - uses: actions/upload-artifact@v4
-        with:
-          name: diario-atletica-ios-unsigned
-          path: diario-atletica-unsigned.ipa
+          path: build/web
+      - name: Pubblica su GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
